@@ -1,0 +1,30 @@
+A-Bigger-WM is written by a person that would like to be annoymous and goes by Beluga (Discord: a330_743l) (Email: NONE)
+
+A-Bigger-WM is free software; you can redistribute and/or modify it under the terms of the GNU General Public Lisence as published by the Free Software Foundation; either version 3 of the Lisence, or (at your option) any later version
+
+A-Bigger-WM is distributed in the hopes that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or  FITNESS FOR A PARTICULAR PURPOUSE. See the GNU General Public Lisence for more details.
+
+You should have recived a copy of the GNU General Public Lisence along with A-Bigger-WM; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+A-Bit-Bigger-WM is a Window Manager based on TinyWM written to add useful functionality like customisable keybinds
+
+Files:
+	Makefile : highly advanced build system
+
+	keybinds/ : Keybind Customisation Files
+		keybinds/keybinds.h          : Main Keybinds File
+		keybinds/keybind_internal.h  : Keybind Internal File
+		keybinds/keybind_wrapppers.c : File For Defining 0-Arg Wrappers
+	src/ : Main Source Code Files
+		src/main.c : Main Logic File
+	include/ : Libraries Used
+		include/shared.h : A Small Library With Useful Function Definitions Including A Small Process Runner
+
+Configuration:
+	For Key Combinations Or Mouse Combinations Edit Either The keybinds or mouse_events Structs in keybinds/keybinds.h Accordingly
+
+Defaults:
+	The Default Events Are:
+		Alt+F1     : Move The Selected Window Up
+		Alt+Mouse1 : Move The Selected Window
+		Alt+Mouse3 : Resize The Selected Window

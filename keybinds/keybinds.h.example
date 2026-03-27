@@ -1,0 +1,33 @@
+#include "keybind_internal.h"
+#include "keybind_wrappers.c"
+#include <X11/Xlib.h>
+#include <stddef.h>
+/* Keybinds */
+
+/* Define The Keybinds Using A Static Const Array Ending In NULL
+ * Single Keybind Arguments Go:
+ * - Key: A strint (char*) representation of the key
+ * - Masks: Modifiers For The Keys, Modifiers Are:
+ *   - Mod1Mask: <Alt>
+ *   - Mod2Mask: <NumLK>   // Ignored
+ *   - Mod3Mask: <ScrlLk>  // Ignored
+ *   - Mod4Mask: <Meta>
+ *   - Mod5Mask: <Alt GR>
+ *
+ *   - ControlMask: <CTRL>
+ *   - LockMask   : <Caps> // Ignored
+ *   - ShiftMask  : <Shift>
+ *
+ * - Function: A Function To Call When The Keybind Is Pressed
+ * */
+
+static keybind keybinds[] = {
+	{(char*)&"F1", Mod1Mask, &KAltF1},
+	{NULL}
+};
+
+static const mouse_event mouse_events[] = {
+	{1, Mod1Mask, &KAltMouse1},
+	{3, Mod1Mask, &KAltMouse3},
+	{(long long)NULL}
+};
