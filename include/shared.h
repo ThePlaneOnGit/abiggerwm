@@ -1,8 +1,3 @@
-/********************************************************\
-|* Name        : Shared Libs                            *|
-|* Description : Static Library Used By All My Projects *|
-|* Author      : ThePlaneOnGit (Discord: a330_743L)     *|
-\********************************************************/
 #define SHARED_IMPL
 #ifndef SHARED_H
 #define SHARED_H
@@ -13,9 +8,10 @@
 	#include <errno.h>
 	
 	typedef struct {
-		size_t capacity;
-		size_t used;
-		void**  data;
+		size_t capacity; /*The Amount Of Allocated Storage*/
+		size_t used; /*The Amount Being Used*/
+		size_t size; /*The Size Of One Element*/
+		void**  data; /*The Data Being Stored*/
 	} void_arr;
 	
 	
@@ -39,7 +35,7 @@
 	#endif
 	makechild(const char* name, const char* args[]);
 	int   runchild(const char* name, const char* args[]);
-	void  dyn_append(void* array, void* element);
+	void  dyn_append(void_arr* array, void* element);
 	int waitchild(
 		#ifdef _WIN32
 			PROCESS_INFO*
@@ -117,14 +113,14 @@
 		#endif
 	}
 	
-	inline void dyn_append(void* array, void* element){
-		if (((void_arr*)array)->used == ((void_arr*)array)->capacity){
-			void* temp       = ((void_arr*)array)->data;
-			((void_arr*)array)->data = malloc((((void_arr*)array)->capacity = ((void_arr*)array)->capacity * 2));
-			(void) memcpy(temp, ((void_arr*)array)->data,((void_arr*)array)->capacity);
-			free(temp);
+	inline void dyn_append(void_arr* array, void* element){
+		if (array->capacity == array->used){
+			array->capacity *= 2;
+			void** data = (void**)realloc(array->data, array->capacity * array->size);
+			array->data = data;
 		}
-		((void_arr*)array)->data[++(((void_arr*)array)->used)] = element;
+		array->used++;
+		array->data[array->used] = element;
 	}
 
 	#ifdef _WIN32

@@ -1,15 +1,21 @@
-A-Bigger-WM is written by a person that would like to be annoymous and goes by Beluga (Discord: a330_743l) (Email: NONE)
+ABiggerWM: A Window Manager That Adds A Few Cool Things
+Copyright (C) 2026 ANNONYMUS PERSON
 
-A-Bigger-WM is free software; you can redistribute and/or modify it under the terms of the GNU General Public Lisence as published by the Free Software Foundation; either version 3 of the Lisence, or (at your option) any later version
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-A-Bigger-WM is distributed in the hopes that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or  FITNESS FOR A PARTICULAR PURPOUSE. See the GNU General Public Lisence for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-You should have recived a copy of the GNU General Public Lisence along with A-Bigger-WM; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-
-A-Bit-Bigger-WM is a Window Manager based on TinyWM written to add useful functionality like customisable keybinds
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Files:
-	Makefile : highly advanced build system
+	make : A simple build script
 
 	keybinds/ : Keybind Customisation Files
 		keybinds/keybinds.h          : Main Keybinds File
@@ -28,3 +34,6 @@ Defaults:
 		Alt+F1     : Move The Selected Window Up
 		Alt+Mouse1 : Move The Selected Window
 		Alt+Mouse3 : Resize The Selected Window
+
+Compilation:
+	To compile with optimal flags run `./make` or `./make build`
