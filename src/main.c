@@ -24,6 +24,25 @@ Display* dpy;
 XWindowAttributes attr;
 XButtonEvent start;
 XEvent ev;
+Window focused_win = None;
+
+void focus_window(Window win) {
+    if (focused_win != None && focused_win != win) {
+        XSetWindowBorderWidth(dpy, focused_win, 1);
+    }
+    
+    if (win == None) {
+        focused_win = None;
+        return;
+    }
+
+    XRaiseWindow(dpy, win);
+    XSetInputFocus(dpy, win, RevertToParent, CurrentTime);
+    XSetWindowBorderWidth(dpy, win, 3);
+
+    focused_win = win;
+    XFlush(dpy);
+}
 
 void setup(void){
 	if (!(dpy = XOpenDisplay(0x0))) exit(1);
@@ -60,13 +79,16 @@ void keybd(XWindowAttributes* attr, XButtonEvent* start, XEvent* ev){
 	if (ev->xkey.subwindow == None) return;
 	if (ev->type == ButtonPress && ev->xbutton.subwindow != None) {
 		XGetWindowAttributes(dpy, ev->xbutton.subwindow, attr);
-		*start = ev->xbutton;
+        *start = ev->xbutton;
+
+        focus_window(ev->xbutton.subwindow);
 		return;
 	}
 
 	if (ev->type != KeyPress ) return;
 	for (int i = 0; keybinds[i].key != NULL; i++){
-		if ((ev->xkey.keycode == XStringToKeysym(keybinds[i].key)) &&
+		KeyCode keycode = XKeysymToKeycode(dpy, XStringToKeysym(keybinds[i].key));
+        if (keycode && (ev->xkey.keycode == keycode) &&
 				((SANITIZED(ev->xkey.state) == keybinds[i].masks))){
 			(*keybinds[i].function)();
 			return;
