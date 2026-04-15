@@ -12,6 +12,14 @@ void KAltF1(void){
 	XRaiseWindow(dpy, ev.xkey.subwindow);
 }
 
+void KAltQ(void){
+    if (focused_win != None) {
+        XKillClient(dpy, focused_win);
+        focused_win = None;
+        XFlush(dpy);
+    }
+}
+
 void KAltMouse1(void){
 	if (start.subwindow == None) return;
 	int xdiff = ev.xbutton.x_root - start.x_root;

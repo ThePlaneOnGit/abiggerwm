@@ -47,10 +47,10 @@
 	#ifdef SHARED_IMPL
 
 	void strlower(const char* in, char* out){
-		out = (char*)&"\0";
 		for (size_t i = 0; i < strlen(in); i++){
 			out[i] = tolower(in[i]);
 		}
+        out[strlen(in)] = '\0';
 	}
 	
 	int runchild(const char* name, const char* args[]){

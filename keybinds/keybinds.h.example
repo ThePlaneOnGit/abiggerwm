@@ -40,7 +40,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 static keybind keybinds[] = {
 	{(char*)&"F1", Mod1Mask, &KAltF1},
-	{NULL}
+    {(char*)&"q", Mod1Mask, &KAltQ},
+    {NULL}
 };
 
 static const mouse_event mouse_events[] = {
