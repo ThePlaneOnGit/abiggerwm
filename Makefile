@@ -1,9 +1,9 @@
 # vim: set tabstop=6 noexpandtab shiftwidth=6 softtabstop=0 colorcolumn=100 ft=make: syntax on:
 # -*- mode: c indent-tabs-mode: t tab-width: 6 fill-column: 100 -*-
 TARGET = abiggerwm
-SRC = src/main.c
+SRC = $(wildcard src/*.c)
 INCLUDES = -I./keybinds -I./include -lX11
-WARN_FLAGS ?= -Wall -Wextra
+WARN_FLAGS ?= -Wall -Wextra -Wno-unused-function -Wno-unused-parameter
 COMPILATION_FLAGS ?= -ggdb -O3
 CC ?= cc
 DEBUG ?=

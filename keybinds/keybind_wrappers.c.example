@@ -1,3 +1,7 @@
+/* vim: set tabstop=6 noexpandtab shiftwidth=6 softtabstop=0 colorcolumn=100 ft=c syntax=c:
+syntax on:
+*/
+// -*- mode: c indent-tabs-mode: t tab-width: 6 fill-column: 100 -*-
 /*
 ABiggerWM: A Window Manager That Adds A Few Cool Things
 Copyright (C) 2026 ANNONYMUS PERSON
@@ -15,12 +19,13 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 #include "../include/shared.h"
 #include "../include/globals.h"
 /* Keybind Wrappers */
 
 /* Define Any Wrappers For Functions Here, Make Sure The Return void and have no args
- * Keep In Mind The Main Loop Checks For Dead Processes 
+ * Keep In Mind The Main Loop Checks For Dead Processes
  * Convention For Function Names Is The Key Preceded By K With Masks First In Camel Case
  * Eg: KAltF1, KCtrlAltT, KAltMouse1
  * */

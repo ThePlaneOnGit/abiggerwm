@@ -1,3 +1,7 @@
+/* vim: set tabstop=6 noexpandtab shiftwidth=6 softtabstop=0 colorcolumn=100 ft=c syntax=c:
+syntax on:
+*/
+// -*- mode: c indent-tabs-mode: t tab-width: 6 fill-column: 100 -*-
 /*
 ABiggerWM: A Window Manager That Adds A Few Cool Things
 Copyright (C) 2026 ANNONYMUS PERSON
@@ -15,6 +19,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 struct _Keybind {
 	char* key;
 	unsigned int masks;

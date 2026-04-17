@@ -22,62 +22,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <X11/Xlib.h>
 #include "../keybinds/keybinds.h"
+#include "../include/window.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define SANITIZED(masks) (masks & (Mod1Mask | Mod4Mask | Mod5Mask | ControlMask | ShiftMask))
-
-struct _Windows {
-	size_t max;
-	size_t used;
-	Window* data;
-};
-typedef struct _Windows Windows;
 
 Display* dpy;
 XWindowAttributes attr;
 XButtonEvent start;
 XEvent ev;
-Window focused_win = None;
 Windows windows;
-
-void focus_window(Display* dpy, Window win) {
-	if (win == None) {
-		focused_win = None;
-		return;
-	}
-
-	if (focused_win != None && focused_win != win) {
-		XSetWindowBorderWidth(dpy, focused_win, 1);
-	}
-
-	XRaiseWindow(dpy, win);
-	XSetInputFocus(dpy, win, RevertToParent, CurrentTime);
-	XSetWindowBorderWidth(dpy, win, 3);
-
-	focused_win = win;
-	XFlush(dpy);
-}
-
-void add_window(Display* dpy, Windows* windows, Window window){
-	if (windows->max == windows->used){
-		windows->max *= 2;
-		windows->data = realloc(windows->data, windows->max);
-	}
-	windows->used++;
-	windows->data[windows->used] = window;
-	XMapWindow(dpy, window);
-	focus_window(dpy, window);
-}
-
-void remove_window(Display* dpy, Windows* windows, Window window){
-	XUnmapWindow(dpy, window);
-	for (size_t i = 0; i < windows->used; i++)
-		if (windows->data[i] == window){
-			for (size_t j = i; j < windows->used; j++)
-				windows->data[j] = windows->data[j + 1];
-			break;
-		}
-}
 
 void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 	if (start->subwindow == None) return;
@@ -144,22 +98,25 @@ int main(void) {
 		waitpid(-1, NULL, WNOHANG);
 		switch (ev.type){
 			case MotionNotify:
-				mouse(dpy, &start, &ev); 
+				mouse(dpy, &start, &ev);
 				break;
 			case ButtonRelease:
-				mouse(dpy, &start, &ev); 
+				mouse(dpy, &start, &ev);
 				break;
 			case ButtonPress: 
-				keybd(dpy, &attr, &start, &ev); 
+				keybd(dpy, &attr, &start, &ev);
 				break;
 			case KeyPress:
-				keybd(dpy, &attr, &start, &ev); 
+				keybd(dpy, &attr, &start, &ev);
 				break;
 			case MapRequest:
-				add_window(dpy, &windows, ev.xmaprequest.window); 
+				add_window(dpy, &windows, ev.xmaprequest.window);
 				break;
 			case DestroyNotify:
-				remove_window(dpy, &windows, ev.xdestroywindow.window); 
+				remove_window(dpy, &windows, ev.xdestroywindow.window);
+				break;
+			case UnmapNotify:
+				unmap_window(dpy, &windows, ev.xunmap.window);
 				break;
 		}
 	}

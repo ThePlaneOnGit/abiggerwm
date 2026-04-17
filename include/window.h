@@ -19,38 +19,32 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef WINDOW_H
+#define WINDOW_H
 
-#include "keybind_internal.h"
-#include "keybind_wrappers.c"
 #include <X11/Xlib.h>
-#include <stddef.h>
-/* Keybinds */
+#include <sys/types.h>
+#include <stdlib.h>
 
-/* Define The Keybinds Using A Static Const Array Ending In NULL
- * Single Keybind Arguments Go:
- * - Key: A strint (char*) representation of the key
- * - Masks: Modifiers For The Keys, Modifiers Are:
- *   - Mod1Mask: <Alt>
- *   - Mod2Mask: <NumLK>   // Ignored
- *   - Mod3Mask: <ScrlLk>  // Ignored
- *   - Mod4Mask: <Meta>
- *   - Mod5Mask: <Alt GR>
- *
- *   - ControlMask: <CTRL>
- *   - LockMask   : <Caps> // Ignored
- *   - ShiftMask  : <Shift>
- *
- * - Function: A Function To Call When The Keybind Is Pressed
- * */
-
-static keybind keybinds[] = {
-	{(char*)&"F1", Mod1Mask, &KAltF1},
-	{(char*)&"q", Mod1Mask, &KAltQ},
-	{NULL}
+struct _Windows {
+	size_t max;
+	size_t used;
+	Window* data;
+	_Bool* unmapped;
 };
+typedef struct _Windows Windows;
 
-static const mouse_event mouse_events[] = {
-	{1, Mod1Mask, &KAltMouse1},
-	{3, Mod1Mask, &KAltMouse3},
-	{(long long)NULL}
-};
+extern Window focused_win;
+
+ssize_t get_win_index(Window win, Windows* wins);
+
+void unmap_window(Display* dpy, Windows* windows, Window window);
+
+_Bool is_unmapped(Window window, Windows* windows);
+
+void focus_window(Display* dpy, Window win);
+
+void add_window(Display* dpy, Windows* windows, Window window);
+
+void remove_window(Display* dpy, Windows* windows, Window window);
+#endif
