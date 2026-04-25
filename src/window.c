@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "../include/window.h"
+#include "../include/log.h"
 Window focused_win = None;
 
 ssize_t get_win_index(Window win, Windows* wins){
@@ -34,6 +35,7 @@ ssize_t get_win_index(Window win, Windows* wins){
 //Basic Wrapper Functions
 
 void unmap_window(Display* dpy, Windows* windows, Window window){
+	LOG("Unmapped Window");
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
 	windows->unmapped[index] = 1;
@@ -46,26 +48,8 @@ _Bool is_unmapped(Window window, Windows* windows){
 }
 
 
-void focus_window(Display* dpy, Window win) {
-	// Sets given window to `focused_win` and edits properties about it and the previous window
-	if (win == None) {
-		focused_win = None;
-		return;
-	}
-
-	if (focused_win != None && focused_win != win) {
-		XSetWindowBorderWidth(dpy, focused_win, 1);
-	}
-
-	XRaiseWindow(dpy, win);
-	XSetInputFocus(dpy, win, RevertToParent, CurrentTime);
-	XSetWindowBorderWidth(dpy, win, 3);
-
-	focused_win = win;
-	XFlush(dpy);
-}
-
 void add_window(Display* dpy, Windows* windows, Window window){
+	LOG("Adding Window And Mapping It");
 	// Adds (and maps) window to windows array
 	if (get_win_index(window, windows) == -1) return;
 	if (windows->max == windows->used){
@@ -76,15 +60,45 @@ void add_window(Display* dpy, Windows* windows, Window window){
 	windows->data[windows->used] = window;
 	XMapWindow(dpy, window);
 	windows->unmapped[windows->used] = 0;
-	focus_window(dpy, window);
+	focus_window(dpy, window, windows);
+	LOG("Successfully Added And Mapped Window");
 }
 
 void remove_window(Display* dpy, Windows* windows, Window window){
 	// Removes (and unmaps) given window from windows array
+	LOG("Removing And Unmapping Window");
 	if (!is_unmapped(window, windows)) unmap_window(dpy, windows, window);
 
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
 	for (size_t i = (size_t)index; i < windows->used; i++)
 		windows->data[i] = windows->data[i + 1];
+	LOG("Sucessfully Removed And Unpameed Window");
+}
+
+void focus_window(Display* dpy, Window win, Windows* wins) {
+	// Sets given window to `focused_win` and edits properties about it and the previous window
+	LOG("Focusing Window");
+
+	if (win == None) {
+		focused_win = None;
+		return;
+	}
+
+	if (get_win_index(win, wins) == -1){
+		LOG("Window Tried To Get Focused While Not In Windows");
+		add_window(dpy, wins, win);
+	}
+
+	if (focused_win != None && focused_win != win) {
+		XSetWindowBorderWidth(dpy, focused_win, 0);
+	}
+
+	XRaiseWindow(dpy, win);
+	XSetInputFocus(dpy, win, RevertToParent, CurrentTime);
+	XSetWindowBorderWidth(dpy, win, 3);
+
+	focused_win = win;
+	XFlush(dpy);
+	LOG("Focused Window And Flushed Successfully");
 }

@@ -19,32 +19,21 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef WINDOW_H
-#define WINDOW_H
 
-#include <X11/Xlib.h>
-#include <sys/types.h>
-#include <stdlib.h>
-
-struct _Windows {
-	size_t max;
-	size_t used;
-	Window* data;
-	_Bool* unmapped;
-};
-typedef struct _Windows Windows;
-
-extern Window focused_win;
-
-ssize_t get_win_index(Window win, Windows* wins);
-
-void unmap_window(Display* dpy, Windows* windows, Window window);
-
-_Bool is_unmapped(Window window, Windows* windows);
-
-void focus_window(Display* dpy, Window win, Windows* wins);
-
-void add_window(Display* dpy, Windows* windows, Window window);
-
-void remove_window(Display* dpy, Windows* windows, Window window);
+#ifndef LOG_H
+	#define LOG_H
+	#ifndef LOG_DIR
+		#define LOG_DIR "~/.abiggerwmlog"
+	#endif
+	#include <stdio.h>
+	#include <stdlib.h>
+	extern FILE* log_file;
+	#define BEGIN_LOG() (log_file = fopen(LOG_DIR, "a"))
+	#define END_LOG() fclose(log_file)
+	#define LOG(MESSAGE, ...) fprintf((log_file != NULL ? log_file : stdout),\
+			"%s at %d: "MESSAGE"\n",\
+			__FILE__, __LINE__, ##__VA_ARGS__)
+	#define SUCESS(MESSAGE, ...) LOG("Sucess in "MESSAGE, ##__VA_ARGS__)
+	#define FALIURE(MESSAGE, ...) do {LOG("Faliure in "MESSAGE, ##__VA_ARGS__);\
+		END_LOG(); exit(1);} while (0)
 #endif

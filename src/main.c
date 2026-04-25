@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <X11/Xlib.h>
 #include "../keybinds/keybinds.h"
 #include "../include/window.h"
+#include "../include/log.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define SANITIZED(masks) (masks & (Mod1Mask | Mod4Mask | Mod5Mask | ControlMask | ShiftMask))
@@ -33,13 +34,27 @@ XButtonEvent start;
 XEvent ev;
 Windows windows;
 
+#define CMP_MASK(byte, mask) ((byte) & mask ? #mask : "")
+#define GET_MASKS(mask_byte) \
+	CMP_MASK(mask_byte, Mod1Mask) ,\
+	CMP_MASK(mask_byte, Mod2Mask) ,\
+	CMP_MASK(mask_byte, Mod3Mask) ,\
+	CMP_MASK(mask_byte, Mod4Mask) ,\
+	CMP_MASK(mask_byte, Mod5Mask) ,\
+	CMP_MASK(mask_byte, ControlMask) ,\
+	CMP_MASK(mask_byte, ShiftMask)
+#define MASK_PATTERN "%s%s%s%s%s%s%s"
+
 void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 	if (start->subwindow == None) return;
-	focus_window(dpy, start->subwindow);
+	focus_window(dpy, start->subwindow, &windows);
 
 	for (int i = 0; mouse_events[i].button != (long long) NULL; i++){
 		if ((start->button == mouse_events[i].button) &&
 				((SANITIZED(ev->xkey.state) == mouse_events[i].masks))){
+			LOG("Got Mouse Event Of Button %d with masks "MASK_PATTERN, 
+					mouse_events[i].button,
+					GET_MASKS(SANITIZED(mouse_events[i].masks)));
 			(*mouse_events[i].function)();
 			return;
 		}
@@ -54,7 +69,8 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 		XGetWindowAttributes(dpy, ev->xbutton.subwindow, attr);
 		*start = ev->xbutton;
 
-		focus_window(dpy, ev->xbutton.subwindow);
+		focus_window(dpy, ev->xbutton.subwindow, &windows);
+		LOG("Got ButtonPress, Focused Window, Returning");
 		return;
 	}
 
@@ -63,6 +79,8 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 		KeyCode keycode = XKeysymToKeycode(dpy, XStringToKeysym(keybinds[i].key));
 		if (keycode && (ev->xkey.keycode == keycode) &&
 				((SANITIZED(ev->xkey.state) == keybinds[i].masks))){
+			LOG("Added Keybind Of Key %s with masks "MASK_PATTERN, keybinds[i].key,
+				GET_MASKS(SANITIZED(keybinds[i].masks)));
 			(*keybinds[i].function)();
 			return;
 		}
@@ -71,20 +89,28 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 }
 
 void setup(Display** dpy, XButtonEvent* start, Window* focused_win){
-	if (!(*dpy = XOpenDisplay(0x0))) exit(1);
+	BEGIN_LOG();
+	if (!(*dpy = XOpenDisplay(0x0))) FALIURE("Failed To Open Display");
+	LOG("Selected Inputs SubstructureRedirectMask | SubstructureNotifyMask");
 	XSelectInput(*dpy, DefaultRootWindow(*dpy),
 			SubstructureRedirectMask | SubstructureNotifyMask);
 
-	for (int i = 0; keybinds[i].key != NULL; i++)
+	for (int i = 0; keybinds[i].key != NULL; i++){
+		LOG("Added Keybind Of Key %s with masks "MASK_PATTERN, keybinds[i].key,
+				GET_MASKS(SANITIZED(keybinds[i].masks)));
 		XGrabKey(*dpy, XKeysymToKeycode(*dpy, XStringToKeysym(keybinds[i].key)),
 			SANITIZED(keybinds[i].masks), DefaultRootWindow(*dpy),
 			True, GrabModeAsync, GrabModeAsync);
+	}
 
-	for (int i = 0; mouse_events[i].button != (long long) NULL; i++)
+	for (int i = 0; mouse_events[i].button != (long long) NULL; i++){
+		LOG("Added Mouse Event Of Button %d with masks "MASK_PATTERN, mouse_events[i].button,
+				GET_MASKS(SANITIZED(mouse_events[i].masks)));
 		XGrabButton(*dpy, mouse_events[i].button,
 				SANITIZED(mouse_events[i].masks), DefaultRootWindow(*dpy),
 				True, ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
 				GrabModeAsync, GrabModeAsync, None, None);
+	}
 	XSync(*dpy, False);
 	*focused_win     = None;
 	start->subwindow = None;
@@ -103,7 +129,7 @@ int main(void) {
 			case ButtonRelease:
 				mouse(dpy, &start, &ev);
 				break;
-			case ButtonPress: 
+			case ButtonPress:
 				keybd(dpy, &attr, &start, &ev);
 				break;
 			case KeyPress:
