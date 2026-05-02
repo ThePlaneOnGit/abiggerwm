@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	#include <stdio.h>
 	#include <stdlib.h>
 	extern FILE* log_file;
-	#define BEGIN_LOG() (log_file = fopen(LOG_DIR, "a"))
+	#define BEGIN_LOG() log_file = (log_file != NULL ? log_file : fopen(LOG_DIR, "a"))
 	#define END_LOG() fclose(log_file)
 	#define LOG(MESSAGE, ...) fprintf((log_file != NULL ? log_file : stdout),\
 			"%s at %d: "MESSAGE"\n",\
