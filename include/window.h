@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <X11/Xlib.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 struct _Windows {
 	size_t max;

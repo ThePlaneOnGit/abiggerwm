@@ -38,7 +38,7 @@ void unmap_window(Display* dpy, Windows* windows, Window window){
 	LOG("Unmapped Window");
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
-	windows->unmapped[index] = 1;
+	windows->unmapped[index] = true;
 }
 
 _Bool is_unmapped(Window window, Windows* windows){
@@ -51,15 +51,20 @@ _Bool is_unmapped(Window window, Windows* windows){
 void add_window(Display* dpy, Windows* windows, Window window){
 	LOG("Adding Window And Mapping It");
 	// Adds (and maps) window to windows array
-	if (get_win_index(window, windows) == -1) return;
+	if (windows->max == 0 || windows->data == NULL){
+		windows->max = 2;
+		windows->data = malloc(2 * sizeof(Window));
+		windows->unmapped = malloc(2);
+	}
 	if (windows->max == windows->used){
 		windows->max *= 2;
 		windows->data = realloc(windows->data, windows->max);
+		windows->unmapped = realloc(windows->unmapped, windows->max);
 	}
 	windows->used++;
 	windows->data[windows->used] = window;
 	XMapWindow(dpy, window);
-	windows->unmapped[windows->used] = 0;
+	windows->unmapped[windows->used] = false;
 	focus_window(dpy, window, windows);
 	LOG("Successfully Added And Mapped Window");
 }
@@ -71,9 +76,10 @@ void remove_window(Display* dpy, Windows* windows, Window window){
 
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
+	windows->used--;
 	for (size_t i = (size_t)index; i < windows->used; i++)
 		windows->data[i] = windows->data[i + 1];
-	LOG("Sucessfully Removed And Unpameed Window");
+	LOG("Sucessfully Removed And Unmapped Window");
 }
 
 void focus_window(Display* dpy, Window win, Windows* wins) {
@@ -91,7 +97,7 @@ void focus_window(Display* dpy, Window win, Windows* wins) {
 	}
 
 	if (focused_win != None && focused_win != win) {
-		XSetWindowBorderWidth(dpy, focused_win, 0);
+		XSetWindowBorderWidth(dpy, focused_win, 1);
 	}
 
 	XRaiseWindow(dpy, win);

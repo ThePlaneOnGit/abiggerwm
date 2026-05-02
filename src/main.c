@@ -52,7 +52,7 @@ void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 	for (int i = 0; mouse_events[i].button != (long long) NULL; i++){
 		if ((start->button == mouse_events[i].button) &&
 				((SANITIZED(ev->xkey.state) == mouse_events[i].masks))){
-			LOG("Got Mouse Event Of Button %d with masks "MASK_PATTERN, 
+			LOG("Got Mouse Event Of Button %d with masks "MASK_PATTERN,
 					mouse_events[i].button,
 					GET_MASKS(SANITIZED(mouse_events[i].masks)));
 			(*mouse_events[i].function)();
