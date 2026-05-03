@@ -22,18 +22,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <X11/Xlib.h>
-#include <sys/types.h>
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <errno.h>
 
-struct _Windows {
-	size_t max;
-	size_t used;
-	Window* data;
-	_Bool* unmapped;
-};
-typedef struct _Windows Windows;
+#include <X11/Xlib.h>
+
+typedef struct Windows Windows;
 
 extern Window focused_win;
 
@@ -46,6 +43,8 @@ _Bool is_unmapped(Window window, Windows* windows);
 void focus_window(Display* dpy, Window win, Windows* wins);
 
 void add_window(Display* dpy, Windows* windows, Window window);
+
+Windows* create_wins(void);
 
 void remove_window(Display* dpy, Windows* windows, Window window);
 #endif

@@ -32,7 +32,7 @@ Display* dpy;
 XWindowAttributes attr;
 XButtonEvent start;
 XEvent ev;
-Windows windows;
+Windows* windows;
 
 #define CMP_MASK(byte, mask) ((byte) & mask ? #mask : "")
 #define GET_MASKS(mask_byte) \
@@ -47,7 +47,7 @@ Windows windows;
 
 void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 	if (start->subwindow == None) return;
-	focus_window(dpy, start->subwindow, &windows);
+	focus_window(dpy, start->subwindow, windows);
 
 	for (int i = 0; mouse_events[i].button != (long long) NULL; i++){
 		if ((start->button == mouse_events[i].button) &&
@@ -69,7 +69,7 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 		XGetWindowAttributes(dpy, ev->xbutton.subwindow, attr);
 		*start = ev->xbutton;
 
-		focus_window(dpy, ev->xbutton.subwindow, &windows);
+		focus_window(dpy, ev->xbutton.subwindow, windows);
 		LOG("Got ButtonPress, Focused Window, Returning");
 		return;
 	}
@@ -114,6 +114,7 @@ void setup(Display** dpy, XButtonEvent* start, Window* focused_win){
 	XSync(*dpy, False);
 	*focused_win     = None;
 	start->subwindow = None;
+	windows = create_wins();
 	return;
 }
 
@@ -136,13 +137,13 @@ int main(void) {
 				keybd(dpy, &attr, &start, &ev);
 				break;
 			case MapRequest:
-				add_window(dpy, &windows, ev.xmaprequest.window);
+				add_window(dpy, windows, ev.xmaprequest.window);
 				break;
 			case DestroyNotify:
-				remove_window(dpy, &windows, ev.xdestroywindow.window);
+				remove_window(dpy, windows, ev.xdestroywindow.window);
 				break;
 			case UnmapNotify:
-				unmap_window(dpy, &windows, ev.xunmap.window);
+				unmap_window(dpy, windows, ev.xunmap.window);
 				break;
 		}
 	}

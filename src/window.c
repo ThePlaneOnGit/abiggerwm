@@ -22,13 +22,63 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../include/window.h"
 #include "../include/log.h"
+
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <errno.h>
+
+#include <X11/Xlib.h>
+
 Window focused_win = None;
 
+typedef struct Windows {
+	size_t max;
+	size_t used;
+	Window* data;
+	_Bool* unmapped;
+} Windows;
+
+int size_overflows(size_t n){ // Thanks, musl
+	if (n >= SIZE_MAX / 2 - (1 << 12)){
+		errno = ENOMEM;
+		return true;
+	}
+	return false;
+}
+
+void win_double(Windows* windows){
+	// Doubles the size of the windows array so it can hold more windows
+	LOG("Doubling Size Of Windows");
+	if (size_overflows(windows->max * 2 * sizeof(Window)))
+		FALIURE("Too many windows to be stored");
+
+	LOG("Allocating New Memory");
+	Window* new_wins = (Window*)malloc(windows->max * 2 * sizeof(Window));
+	_Bool* new_unmap = (_Bool* )malloc(windows->max * 2 * sizeof(_Bool));
+
+	LOG("Copying Memory Over");
+	memcpy(new_wins, windows->data, windows->max * sizeof(Window));
+	memcpy(new_unmap, windows->unmapped, windows->max * sizeof(_Bool));
+
+	LOG("Freeing Old Memory");
+	free(windows->data);
+	free(windows->unmapped);
+
+	LOG("Setting Values To New Memory");
+	windows->data = new_wins;
+	windows->unmapped = new_unmap;
+}
 ssize_t get_win_index(Window win, Windows* wins){
 	// Returns index of window if it exists in the `wins` object, returns -1 instead
+	LOG("Getting Index Of Window %ld", win);
 	for (size_t i = 0; i < wins->used; i++)
-		if (wins->data[i] == win)
+		if (wins->data[i] == win){
+			LOG("Found Window %ld at index %jd", win, i);
 			return i;
+		}
 	return -1;
 }
 
@@ -49,24 +99,33 @@ _Bool is_unmapped(Window window, Windows* windows){
 
 
 void add_window(Display* dpy, Windows* windows, Window window){
-	LOG("Adding Window And Mapping It");
-	// Adds (and maps) window to windows array
-	if (windows->max == 0 || windows->data == NULL){
-		windows->max = 2;
-		windows->data = malloc(2 * sizeof(Window));
-		windows->unmapped = malloc(2);
+	LOG("Adding Window %ld And Mapping It", window);
+	if (get_win_index(window, windows) != -1){
+		LOG("Tried to add existing window %ld", window);
+		return;
 	}
+	// Adds (and maps) window to windows array
 	if (windows->max == windows->used){
-		windows->max *= 2;
-		windows->data = realloc(windows->data, windows->max);
-		windows->unmapped = realloc(windows->unmapped, windows->max);
+		LOG("Windows Struct To Double");
+		win_double(windows);
+		LOG("Doubled Windows Size");
 	}
 	windows->used++;
 	windows->data[windows->used] = window;
 	XMapWindow(dpy, window);
 	windows->unmapped[windows->used] = false;
-	focus_window(dpy, window, windows);
+//	focus_window(dpy, window, windows);
 	LOG("Successfully Added And Mapped Window");
+}
+
+Windows* create_wins(void){
+	Windows* end = malloc(sizeof(Windows));
+
+	end->data     = malloc(2 * sizeof(*end->data));
+	end->unmapped = malloc(2);
+	end->max      = 2;
+	end->used     = 0;
+	return end;
 }
 
 void remove_window(Display* dpy, Windows* windows, Window window){

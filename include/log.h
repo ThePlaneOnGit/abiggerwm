@@ -30,9 +30,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 	extern FILE* log_file;
 	#define BEGIN_LOG() log_file = (log_file != NULL ? log_file : fopen(LOG_DIR, "a"))
 	#define END_LOG() fclose(log_file)
-	#define LOG(MESSAGE, ...) fprintf((log_file != NULL ? log_file : stdout),\
-			"%s at %d: "MESSAGE"\n",\
-			__FILE__, __LINE__, ##__VA_ARGS__)
+	#define LOG(MESSAGE, ...)\
+		do {\
+			fprintf((log_file != NULL ? log_file : stdout),\
+				"%s at %d: "MESSAGE"\n",\
+				__FILE__, __LINE__, ##__VA_ARGS__);\
+			fflush((log_file != NULL ? log_file : stdout));\
+		} while (0)
 	#define SUCESS(MESSAGE, ...) LOG("Sucess in "MESSAGE, ##__VA_ARGS__)
 	#define FALIURE(MESSAGE, ...) do {LOG("Faliure in "MESSAGE, ##__VA_ARGS__);\
 		END_LOG(); exit(1);} while (0)
