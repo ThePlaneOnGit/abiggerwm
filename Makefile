@@ -4,7 +4,7 @@ TARGET = abiggerwm
 SRC = $(wildcard src/*.c)
 INCLUDES = -I./keybinds -I./include -lX11
 WARN_FLAGS ?= -Wall -Wextra -Wno-unused-function -Wno-unused-parameter
-COMPILATION_FLAGS ?= -ggdb -O3 -ggdb3
+COMPILATION_FLAGS ?= -ggdb -ggdb3
 CC ?= cc
 DEBUG ?=
 

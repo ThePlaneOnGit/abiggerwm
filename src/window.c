@@ -110,10 +110,10 @@ void add_window(Display* dpy, Windows* windows, Window window){
 		win_double(windows);
 		LOG("Doubled Windows Size");
 	}
-	windows->used++;
 	windows->data[windows->used] = window;
-	XMapWindow(dpy, window);
 	windows->unmapped[windows->used] = false;
+	windows->used++;
+	XMapWindow(dpy, window);
 //	focus_window(dpy, window, windows);
 	LOG("Successfully Added And Mapped Window");
 }
@@ -136,8 +136,10 @@ void remove_window(Display* dpy, Windows* windows, Window window){
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
 	windows->used--;
-	for (size_t i = (size_t)index; i < windows->used; i++)
+	for (size_t i = (size_t)index; i < windows->used; i++){
 		windows->data[i] = windows->data[i + 1];
+		windows->unmapped[i] = windows->unmapped[i + 1];
+	}
 	LOG("Sucessfully Removed And Unmapped Window");
 }
 
@@ -148,6 +150,11 @@ void focus_window(Display* dpy, Window win, Windows* wins) {
 	if (win == None) {
 		focused_win = None;
 		return;
+	}
+
+	if (is_unmapped(focused_win, wins)){
+		LOG("Old Focused Win Unmapped");
+		focused_win = None;
 	}
 
 	if (get_win_index(win, wins) == -1){

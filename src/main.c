@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <X11/Xlib.h>
+#include <string.h>
 #include "../keybinds/keybinds.h"
 #include "../include/window.h"
 #include "../include/log.h"
@@ -88,8 +89,8 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 	return;
 }
 
-void setup(Display** dpy, XButtonEvent* start, Window* focused_win){
-	BEGIN_LOG();
+void setup(char* file, Display** dpy, XButtonEvent* start, Window* focused_win){
+	if (file) log_file = fopen(file, "w");
 	if (!(*dpy = XOpenDisplay(0x0))) FALIURE("Failed To Open Display");
 	LOG("Selected Inputs SubstructureRedirectMask | SubstructureNotifyMask");
 	XSelectInput(*dpy, DefaultRootWindow(*dpy),
@@ -118,8 +119,18 @@ void setup(Display** dpy, XButtonEvent* start, Window* focused_win){
 	return;
 }
 
-int main(void) {
-	setup(&dpy, &start, &focused_win);
+int main(int argc, char* argv[]) {
+	char* file = NULL;
+	if (argc > 1) {
+		if (strcmp(argv[1], "-h") == 0 ||
+				strcmp(argv[1], "--help") == 0){
+			printf("Usage: %s [log_file]", argv[0]);
+			return 0;
+		}
+
+		file = argv[1];
+	}
+	setup(file, &dpy, &start, &focused_win);
 	for (;;) {
 		XNextEvent(dpy, &ev);
 		waitpid(-1, NULL, WNOHANG);

@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 /* Keybind Wrappers */
 
 /* Define Any Wrappers For Functions Here, Make Sure The Return void and have no args
- * Keep In Mind The Main Loop Checks For Dead Processes 
+ * Keep In Mind The Main Loop Checks For Dead Processes
  * Convention For Function Names Is The Key Preceded By K With Masks First In Camel Case
  * Eg: KAltF1, KCtrlAltT, KAltMouse1
  * */
