@@ -41,7 +41,7 @@ typedef struct Windows {
 	_Bool* unmapped;
 } Windows;
 
-int size_overflows(size_t n){ // Thanks, musl
+inline int size_overflows(size_t n){ // Thanks, musl
 	if (n >= SIZE_MAX / 2 - (1 << 12)){
 		errno = ENOMEM;
 		return true;
@@ -49,7 +49,7 @@ int size_overflows(size_t n){ // Thanks, musl
 	return false;
 }
 
-void win_double(Windows* windows){
+inline void win_double(Windows* windows){
 	// Doubles the size of the windows array so it can hold more windows
 	LOG("Doubling Size Of Windows");
 	if (size_overflows(windows->max * 2 * sizeof(Window)))
@@ -71,7 +71,8 @@ void win_double(Windows* windows){
 	windows->data = new_wins;
 	windows->unmapped = new_unmap;
 }
-ssize_t get_win_index(Window win, Windows* wins){
+
+inline ssize_t get_win_index(Window win, Windows* wins){
 	// Returns index of window if it exists in the `wins` object, returns -1 instead
 	LOG("Getting Index Of Window %ld", win);
 	for (size_t i = 0; i < wins->used; i++)
@@ -91,7 +92,7 @@ void unmap_window(Display* dpy, Windows* windows, Window window){
 	windows->unmapped[index] = true;
 }
 
-_Bool is_unmapped(Window window, Windows* windows){
+inline _Bool is_unmapped(Window window, Windows* windows){
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return 1;
 	return windows->unmapped[index];
@@ -114,7 +115,6 @@ void add_window(Display* dpy, Windows* windows, Window window){
 	windows->unmapped[windows->used] = false;
 	windows->used++;
 	XMapWindow(dpy, window);
-//	focus_window(dpy, window, windows);
 	LOG("Successfully Added And Mapped Window");
 }
 

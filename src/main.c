@@ -27,7 +27,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../include/log.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define SANITIZED(masks) (masks & (Mod1Mask | Mod4Mask | Mod5Mask | ControlMask | ShiftMask))
+#define SANITIZED(masks) (masks & (Mod1Mask | Mod4Mask | Mod5Mask | ControlMask | ShiftMask)\
+		& ~(Mod2Mask | Mod3Mask | LockMask))
 
 Display* dpy;
 XWindowAttributes attr;

@@ -20,18 +20,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-struct _Keybind {
+typedef struct keybind {
 	char* key;
 	unsigned int masks;
 	void (*function)(void);
-};
+} keybind;
 
-typedef struct _Keybind keybind;
-
-struct _Mouse {
+typedef struct mouse_event {
 	unsigned int button;
 	unsigned int masks;
 	void (*function)(void);
-};
-
-typedef struct _Mouse mouse_event;
+} mouse_event;

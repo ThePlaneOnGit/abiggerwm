@@ -34,11 +34,7 @@ typedef struct Windows Windows;
 
 extern Window focused_win;
 
-ssize_t get_win_index(Window win, Windows* wins);
-
 void unmap_window(Display* dpy, Windows* windows, Window window);
-
-_Bool is_unmapped(Window window, Windows* windows);
 
 void focus_window(Display* dpy, Window win, Windows* wins);
 

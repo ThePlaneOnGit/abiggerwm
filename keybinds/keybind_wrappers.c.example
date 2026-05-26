@@ -31,7 +31,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
  * */
 
 void KAltF1(void){
-	XRaiseWindow(dpy, ev.xkey.subwindow);
+	if (focused_win == None)
+		return;
+	XRaiseWindow(dpy, focused_win);
+}
+
+void KAltQ(void){
+	if (focused_win == None)
+		return;
+
+	XKillClient(dpy, focused_win);
+	focused_win = None;
+	XFlush(dpy);
 }
 
 void KAltMouse1(void){
