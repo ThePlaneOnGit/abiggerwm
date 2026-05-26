@@ -22,25 +22,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <errno.h>
+	#include <stdbool.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include <sys/types.h>
+	#include <errno.h>
 
-#include <X11/Xlib.h>
+	#include <X11/Xlib.h>
 
-typedef struct Windows Windows;
+	typedef struct Windows Windows;
 
-extern Window focused_win;
+	extern Window focused_win;
 
-void unmap_window(Display* dpy, Windows* windows, Window window);
+	void unmap_window(Display* dpy, Windows* windows, Window window);
 
-void focus_window(Display* dpy, Window win, Windows* wins);
+	void focus_window(Display* dpy, Window win, Windows* wins);
 
-void add_window(Display* dpy, Windows* windows, Window window);
+	void add_window(Display* dpy, Windows* windows, Window window);
 
-Windows* create_wins(void);
+	Windows* create_wins(void);
 
-void remove_window(Display* dpy, Windows* windows, Window window);
+	void remove_window(Display* dpy, Windows* windows, Window window);
 #endif
