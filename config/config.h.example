@@ -19,23 +19,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef GLOBALS_H
-	#define GLOBALS_H
 
-		#ifndef MAX_WINS
-			#define MAX_WINS 7
-		#endif
+/* Main Config */
 
-	#include <X11/Xlib.h>
-	#include "window.h"
+/*
+ * This file includes the main configuration for the window manager
+ * These include:
+ * 	- MAX_WINS: Amount Of Workspaces
+ */
 
-	#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-	extern Display* dpy;
-	extern XWindowAttributes attr;
-	extern XButtonEvent start;
-	extern XEvent ev;
-	extern Window focused_win;
-	extern Windows* workspaces[MAX_WINS];
-
+#ifndef CONFIG_H
+	#include "keybinds.h"
+	#include "globals.h"
+	#ifndef MAX_WINS
+		#define MAX_WINS 7
+	#endif
 #endif

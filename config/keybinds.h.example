@@ -19,23 +19,38 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-#ifndef GLOBALS_H
-	#define GLOBALS_H
 
-		#ifndef MAX_WINS
-			#define MAX_WINS 7
-		#endif
+#include "keybind_internal.h"
+#include "keybind_wrappers.c"
+#include <X11/Xlib.h>
+#include <stddef.h>
+/* Keybinds */
 
-	#include <X11/Xlib.h>
-	#include "window.h"
+/* Define The Keybinds Using A Static Const Array Ending In NULL
+ * Single Keybind Arguments Go:
+ * - Key: A strint (char*) representation of the key
+ * - Masks: Modifiers For The Keys, Modifiers Are:
+ *   - Mod1Mask: <Alt>
+ *   - Mod2Mask: <NumLK>   // Ignored
+ *   - Mod3Mask: <ScrlLk>  // Ignored
+ *   - Mod4Mask: <Meta>
+ *   - Mod5Mask: <Alt GR>
+ *
+ *   - ControlMask: <CTRL>
+ *   - LockMask   : <Caps> // Ignored
+ *   - ShiftMask  : <Shift>
+ *
+ * - Function: A Function To Call When The Keybind Is Pressed
+ * */
 
-	#define MAX(a, b) ((a) > (b) ? (a) : (b))
+static keybind keybinds[] = {
+	{(char*)&"F1", Mod1Mask, &KAltF1},
+	{(char*)&"q", Mod1Mask, &KAltQ},
+	{NULL}
+};
 
-	extern Display* dpy;
-	extern XWindowAttributes attr;
-	extern XButtonEvent start;
-	extern XEvent ev;
-	extern Window focused_win;
-	extern Windows* workspaces[MAX_WINS];
-
-#endif
+static const mouse_event mouse_events[] = {
+	{1, Mod1Mask, &KAltMouse1},
+	{3, Mod1Mask, &KAltMouse3},
+	{(long long)NULL}
+};

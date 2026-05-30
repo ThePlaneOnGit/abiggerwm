@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <X11/Xlib.h>
 #include <string.h>
-#include "keybinds.h"
+#include "config.h"
 #include "window.h"
 #include "log.h"
 
@@ -34,7 +34,9 @@ Display* dpy;
 XWindowAttributes attr;
 XButtonEvent start;
 XEvent ev;
-#define MAX_WINS 7
+#ifndef MAX_WINS
+	#define MAX_WINS 7
+#endif
 Windows* workspaces[MAX_WINS];
 unsigned int current_workspace;
 
