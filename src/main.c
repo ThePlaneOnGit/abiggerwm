@@ -22,9 +22,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <X11/Xlib.h>
 #include <string.h>
-#include "../keybinds/keybinds.h"
-#include "../include/window.h"
-#include "../include/log.h"
+#include "keybinds.h"
+#include "window.h"
+#include "log.h"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define SANITIZED(masks) (masks & (Mod1Mask | Mod4Mask | Mod5Mask | ControlMask | ShiftMask)\
