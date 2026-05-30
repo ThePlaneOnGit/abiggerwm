@@ -34,7 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	extern Window focused_win;
 
-	void unmap_window(Display* dpy, Windows* windows, Window window);
+	void unmap_window_arr(Display* dpy, Window window, Windows* windows[], unsigned int amt);
 
 	void focus_window(Display* dpy, Window win, Windows* wins);
 
@@ -42,5 +42,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 	Windows* create_wins(void);
 
-	void remove_window(Display* dpy, Windows* windows, Window window);
+	void remove_window_arr(Display* dpy, Window window, Windows* windows[], unsigned int amt);
 #endif

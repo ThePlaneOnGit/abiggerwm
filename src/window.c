@@ -39,6 +39,7 @@ typedef struct Windows {
 	size_t used;
 	Window* data;
 	_Bool* unmapped;
+	Window focused;
 } Windows;
 
 inline int size_overflows(size_t n){ // Thanks, musl
@@ -75,6 +76,10 @@ inline void win_double(Windows* windows){
 inline ssize_t get_win_index(Window win, Windows* wins){
 	// Returns index of window if it exists in the `wins` object, returns -1 instead
 	LOG("Getting Index Of Window %ld", win);
+	if (wins == NULL){
+		LOG("Got passed invalid windows array");
+		return -1;
+	}
 	for (size_t i = 0; i < wins->used; i++)
 		if (wins->data[i] == win){
 			LOG("Found Window %ld at index %jd", win, i);
@@ -83,13 +88,38 @@ inline ssize_t get_win_index(Window win, Windows* wins){
 	return -1;
 }
 
+inline Windows* get_win_arr(Window win, Windows* wins[], unsigned int amt){
+	for (unsigned int i = 0; i < amt; i++)
+		if (get_win_index(win, wins[i]) != -1)
+			return wins[i];
+	return NULL;
+}
+
 //Basic Wrapper Functions
 
-void unmap_window(Display* dpy, Windows* windows, Window window){
+inline void unmap_window(Display* dpy, Windows* windows, Window window){
 	LOG("Unmapped Window");
 	ssize_t index = get_win_index(window, windows);
 	if (index == -1) return;
+	if (windows->focused == window || focused_win == window)
+		focused_win = None;
 	windows->unmapped[index] = true;
+}
+
+inline void map_window(Display* dpy, Windows* windows, Window window){
+	LOG("Mapped Window");
+	ssize_t index = get_win_index(window, windows);
+	if (index == -1) return;
+	windows->unmapped[index] = false;
+}
+
+void unmap_window_arr(Display* dpy, Window window, Windows* windows[], unsigned int amt){
+	Windows* place = get_win_arr(window, windows, amt);
+	if (place == NULL){
+		LOG("Tried Unmapping Non-Existant Window");
+		return;
+	}
+	unmap_window(dpy, place, window);
 }
 
 inline _Bool is_unmapped(Window window, Windows* windows){
@@ -143,6 +173,15 @@ void remove_window(Display* dpy, Windows* windows, Window window){
 	LOG("Sucessfully Removed And Unmapped Window");
 }
 
+void remove_window_arr(Display* dpy, Window window, Windows* windows[], unsigned int amt){
+	Windows* place = get_win_arr(window, windows, amt);
+	if (place == NULL){
+		LOG("Tried Removing Non-Existant Window");
+		return;
+	}
+	remove_window(dpy, place, window);
+}
+
 void focus_window(Display* dpy, Window win, Windows* wins) {
 	// Sets given window to `focused_win` and edits properties about it and the previous window
 	LOG("Focusing Window");
@@ -171,6 +210,24 @@ void focus_window(Display* dpy, Window win, Windows* wins) {
 	XSetWindowBorderWidth(dpy, win, 3);
 
 	focused_win = win;
+	wins->focused = focused_win;
 	XFlush(dpy);
 	LOG("Focused Window And Flushed Successfully");
+}
+
+void unmap_wins(Display* dpy, Windows* wins){
+	wins->focused = focused_win;
+	focused_win   = None;
+	for (size_t i = 0; i < wins->used; i++){
+		unmap_window(dpy, wins, wins->data[i]);
+		XUnmapWindow(dpy, wins->data[i]);
+	}
+}
+
+void map_wins(Display* dpy, Windows* wins){
+	focused_win = wins->focused;
+	for (size_t i = 0; i < wins->used; i++){
+		map_window(dpy, wins, wins->data[i]);
+		XMapWindow(dpy, wins->data[i]);
+	}
 }

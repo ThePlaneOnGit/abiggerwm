@@ -34,7 +34,9 @@ Display* dpy;
 XWindowAttributes attr;
 XButtonEvent start;
 XEvent ev;
-Windows* windows;
+#define MAX_WINS 7
+Windows* workspaces[MAX_WINS];
+unsigned int current_workspace;
 
 #define CMP_MASK(byte, mask) ((byte) & mask ? #mask : "")
 #define GET_MASKS(mask_byte) \
@@ -49,9 +51,9 @@ Windows* windows;
 
 void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 	if (start->subwindow == None) return;
-	focus_window(dpy, start->subwindow, windows);
+	focus_window(dpy, start->subwindow, workspaces[current_workspace]);
 
-	for (int i = 0; mouse_events[i].button != (long long) NULL; i++){
+	for (int i = 0; mouse_events[i].button != (long long) NULL; i++)
 		if ((start->button == mouse_events[i].button) &&
 				((SANITIZED(ev->xkey.state) == mouse_events[i].masks))){
 			LOG("Got Mouse Event Of Button %d with masks "MASK_PATTERN,
@@ -60,9 +62,7 @@ void mouse(Display* dpy, XButtonEvent* start, XEvent* ev){
 			(*mouse_events[i].function)();
 			return;
 		}
-	}
 	return;
-
 }
 
 void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* ev){
@@ -71,7 +71,7 @@ void keybd(Display* dpy, XWindowAttributes* attr, XButtonEvent* start, XEvent* e
 		XGetWindowAttributes(dpy, ev->xbutton.subwindow, attr);
 		*start = ev->xbutton;
 
-		focus_window(dpy, ev->xbutton.subwindow, windows);
+		focus_window(dpy, ev->xbutton.subwindow, workspaces[current_workspace]);
 		LOG("Got ButtonPress, Focused Window, Returning");
 		return;
 	}
@@ -116,7 +116,9 @@ void setup(char* file, Display** dpy, XButtonEvent* start, Window* focused_win){
 	XSync(*dpy, False);
 	*focused_win     = None;
 	start->subwindow = None;
-	windows = create_wins();
+	for (int i = 0; i < MAX_WINS; i++)
+		workspaces[i] = create_wins();
+	current_workspace = 0;
 	return;
 }
 
@@ -149,13 +151,13 @@ int main(int argc, char* argv[]) {
 				keybd(dpy, &attr, &start, &ev);
 				break;
 			case MapRequest:
-				add_window(dpy, windows, ev.xmaprequest.window);
+				add_window(dpy, workspaces[current_workspace], ev.xmaprequest.window);
 				break;
 			case DestroyNotify:
-				remove_window(dpy, windows, ev.xdestroywindow.window);
+				remove_window_arr(dpy, ev.xdestroywindow.window, workspaces, MAX_WINS);
 				break;
 			case UnmapNotify:
-				unmap_window(dpy, windows, ev.xunmap.window);
+				unmap_window_arr(dpy, ev.xunmap.window, workspaces, MAX_WINS);
 				break;
 		}
 	}
